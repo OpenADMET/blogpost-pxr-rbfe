@@ -1,0 +1,18 @@
+name: openadmet-pxr-rbfe
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  # cinnabar 0.5.0 assigns a size-1 array into a scalar slot inside its bootstrap
+  # (stats.py: y_true_sample[i] = np.random.normal(..., size=1)). numpy removed that
+  # deprecated behaviour in 2.3, so figures 5 and 6 raise ValueError above this pin.
+  - numpy<2.3
+  - pandas
+  - scipy
+  - matplotlib-base
+  - seaborn
+  - networkx
+  - rdkit
+  - cinnabar
+  - pymol-open-source
+  - pytest
