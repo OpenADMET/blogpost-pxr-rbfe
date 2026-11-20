@@ -1,9 +1,9 @@
-"""Render the binding-site panels for figures 4, 5 and 6.
+"""Render the binding-site panels for figures 4, 5, 6 and 7.
 
-One representative ligand per series -- the compound crystallised in that structure
--- with its scaffold ball-and-stick and its R groups as plain sticks. The Li and
-Werner receptors are superposed onto the challenge receptor so all three panels
-share one camera.
+One representative ligand per series -- the compound crystallised in that structure,
+where there is one -- with its scaffold ball-and-stick and its R groups as plain
+sticks. Every receptor but the challenge one is superposed onto the challenge receptor
+so all four panels share one camera.
 
     python -m pymol -cq figures/render_poses.py
 """
@@ -39,6 +39,18 @@ SYSTEMS = {
     "werner": dict(dir="werner_et_al", receptor="receptor_HID407.pdb", chain="B",
                    name="Werner-25", zoom=4.0, pdb="PDB 6HTY",
                    core="O=C(Cc1ccccc1)Nc1ccc(O)cc1"),
+    # Figure 7's receptor is Schrodinger's predicted model rather than the crystal, so it
+    # is its own system even though the series is the same as "werner". That receptor is
+    # THEIRS and is not redistributed here, so this entry is skipped unless you have put
+    # the file in place yourself -- see the README. figures/pose_schro.png ships, so
+    # figure 7 reproduces either way. Two things that are easy to get wrong if you do
+    # rebuild it: the model is a SINGLE chain and that chain is A, not B; and the
+    # representative cannot be Werner-25, which the n=42 pose set carries only as the
+    # stereo pair Werner-25_R / Werner-25_S. Werner-20 is used instead -- it is the pose
+    # parent the rest of the set was rebuilt from (see the `pose_rebuilt_from` tag).
+    "schro": dict(dir="werner_schrodinger_n42", receptor="receptor_schro.pdb", chain="A",
+                  name="Werner-20", zoom=4.0, pdb="6HTY model 2",
+                  core="O=C(Cc1ccccc1)Nc1ccc(O)cc1"),
 }
 REFERENCE = SYSTEMS["challenge"]
 
@@ -141,4 +153,8 @@ def render(key, cfg):
 
 
 for _k, _c in SYSTEMS.items():
+    if not (ROOT / _c["dir"] / _c["receptor"]).exists():
+        print(f"skipping {_k}: {_c['dir']}/{_c['receptor']} is not in this repository "
+              f"(see README); figures/pose_{_k}.png ships pre-rendered")
+        continue
     render(_k, _c)

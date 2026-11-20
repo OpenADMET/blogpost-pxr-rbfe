@@ -37,7 +37,7 @@ above the pin.
 ## Reproducing the figures
 
 Everything regenerates from a fresh clone. Run from the repository root, in this order
-— figures 4–6 need the binding-site renders, which are the one slow step:
+— figures 4–7 need the binding-site renders, which are the one slow step:
 
 ```bash
 python -m pymol -cq figures/render_poses.py   # pose_{challenge,li,werner}.png, ~1 min
@@ -47,6 +47,7 @@ python figures/fig3_scaffold_clusters.py
 python figures/fig4_challenge_subseries.py
 python figures/fig5_li.py
 python figures/fig6_werner.py
+python figures/fig7_werner_n42_schrodinger.py
 ```
 
 Each script writes its PNG next to itself and is idempotent. `pytest -q` checks the
@@ -62,6 +63,7 @@ shipped data still reproduces the published statistics before you trust any of i
 | 4 | [`fig4_challenge_subseries.py`](figures/fig4_challenge_subseries.py) | [`data/challenge_subseries/`](data/challenge_subseries) | That 21-compound biaryl sulfonamide subseries, across three His407 tautomers — no signal against cell-based pEC50 |
 | 5 | [`fig5_li.py`](figures/fig5_li.py) | [`data/li_et_al/`](data/li_et_al) | Li et al. 2021 SPA70 analogues (n = 64), scored on TR-FRET binding pIC50 |
 | 6 | [`fig6_werner.py`](figures/fig6_werner.py) | [`data/werner_et_al/`](data/werner_et_al) | Werner et al. 2019 analogues (n = 35), scored on PXR transactivation pMEC |
+| 7 | [`fig7_werner_n42_schrodinger.py`](figures/fig7_werner_n42_schrodinger.py) | [`data/werner_schrodinger_n42/`](data/werner_schrodinger_n42) | The same series on Schrodinger's own receptor and their own n = 42 compound set|
 
 Figures 1 and 2 carry no experimental data — figure 1 is explicitly mock, figure 2 is
 an analytic cost model. Everything from figure 3 on is real.
@@ -164,6 +166,26 @@ and on the assay's noise floor, not only on affinity; and the paper reports HepG
 DPX-2 without saying which per compound, and the two use different thresholds (4× the
 DMSO SD vs > 10% of the rifampicin control), so the column may pool two conventions.
 
+### `data/werner_schrodinger_n42/` — figure 7
+
+The same Werner series as figure 6, rerun to be directly comparable with Schrodinger's
+published numbers: their receptor, their 42-compound selection, their endpoint.
+
+Schrodinger, *J. Chem. Theory Comput.* **2026**,
+[doi:10.1021/acs.jctc.6c01007](https://doi.org/10.1021/acs.jctc.6c01007) — *"Accelerating
+Lead Optimization away from AntiTargets: Navigating the Structural Complexity of
+Promiscuous ADMET Proteins"*. They do not use the 6HTY crystal directly: the paper builds
+PXR models by cross-docking the three most potent ligands into 27 PXR structures
+*excluding* 6HTY, varying His407, and keeping the top 10 by GlideWS after a consensus
+binding-mode filter.
+
+| File | |
+|---|---|
+| `posed_ligands.sdf` | 43 records for 42 compounds, posed by us in their receptor |
+| `schrodinger_predictions.csv` | their 42 published per-ligand predictions, with the experimental MEC |
+| `rbfe_values.json` | our predictions for the same 42, network `schro42\|LOMAP k=4\|ddg_sem<=1.0\|pMEC` |
+
+
 ### ML applicability domain — figures 5C and 6C
 
 `data/{li,werner}_et_al/ml_domain.csv` gives, per compound, the distance to the nearest
@@ -214,3 +236,9 @@ Every assumption flatters FEP, so read it as an upper bound.
 Code and derived data: MIT, see [LICENSE](LICENSE). Upstream experimental data belongs
 to the cited publications, to ChEMBL, and to the OpenADMET challenge dataset (CC-BY);
 see those sources for their terms.
+
+**One exception.** `data/werner_schrodinger_n42/schrodinger_predictions.csv` reproduces
+42 predicted values from the tables of
+[doi:10.1021/acs.jctc.6c01007](https://doi.org/10.1021/acs.jctc.6c01007), for comparison;
+those values are theirs. Their structure files are not redistributed here at all — take
+them from the publisher.
